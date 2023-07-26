@@ -1,4 +1,4 @@
-# Real Time Vehicle Tracking in Carla Simulator.
+# Real Time Vehicle Tracking in Carla Simulator with Yolo and StrongSORT
 
 # Requirements 
 

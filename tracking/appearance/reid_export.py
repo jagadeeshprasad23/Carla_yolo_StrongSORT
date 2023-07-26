@@ -8,14 +8,14 @@ from pathlib import Path
 import torch
 from torch.utils.mobile_optimizer import optimize_for_mobile
 
-from boxmot.appearance import export_formats
-from boxmot.appearance.backbones import build_model
-from boxmot.appearance.reid_model_factory import (get_model_name,
+from appearance import export_formats
+from appearance.backbones import build_model
+from appearance.reid_model_factory import (get_model_name,
                                                   load_pretrained_weights)
-from boxmot.utils import WEIGHTS
-from boxmot.utils import logger as LOGGER
-from boxmot.utils.checks import TestRequirements
-from boxmot.utils.torch_utils import select_device
+from utils import WEIGHTS
+from utils import logger as LOGGER
+from utils.checks import TestRequirements
+from utils.torch_utils import select_device
 
 __tr = TestRequirements()
 

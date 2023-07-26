@@ -18,3 +18,8 @@ Install Tensorrt
 ```
 https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
 ```
+create a new virtual environment
+
+conda install -c conda-forge lap
+
+

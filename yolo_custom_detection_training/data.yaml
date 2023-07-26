@@ -1,0 +1,8 @@
+path: C:/yolo
+train: yolo_images/train/
+val: yolo_images/valid/
+
+nc: 3
+names: ['bike', 'motobike', 'vehicle']
+
+#0 = bike, 1= motobike, 2 = vehicle.

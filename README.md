@@ -27,4 +27,11 @@ install Linear Assignment Problem
 ```
 conda install -c conda-forge lap
 ```
-
+Run CarlaE4.exe and Run any of the following in the command prompt 
+```
+tracking/tracker.py
+```
+Or Open Jupyter notebook/ Jupyter-lab and run the following notebook
+```
+tracking/tracker.ipynb
+```

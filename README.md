@@ -18,8 +18,13 @@ Install Tensorrt
 ```
 https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
 ```
-create a new virtual environment
-
+create a new virtual environment and 
+install carla in conda virtual environment
+```
+pip install carla
+```
+install Linear Assignment Problem
+```
 conda install -c conda-forge lap
-
+```
 

@@ -84,7 +84,7 @@ from ultralytics import YOLO
 #use the best model for object detection
 
 #model = YOLO('yolov8n.pt')
-model = YOLO('yolov8n.pt')
+model = YOLO('weights/best.pt')
 
 while True:
     frame = camera_data['image']

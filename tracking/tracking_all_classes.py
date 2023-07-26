@@ -19,6 +19,9 @@ TRACKER = 'strongsort'
 IM_WIDTH = 256*4
 IM_HEIGHT = 256*3
 
+YOLO_PATH = 'weights/yolov8n.pt'
+YOLO_PATH = 'weights/best.pt'
+
 class ObjectTracking:
     def __init__(self):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -38,7 +41,6 @@ class ObjectTracking:
             self.video_writer = cv2.VideoWriter(self.video_save_path, fourcc, 20.0, (IM_WIDTH, IM_HEIGHT))
         
         if TRACKER == 'strongsort':
-            print('Tracker = Strongsort')
             tracker_config = 'configs/strongsort.yaml' 
             with open(tracker_config, 'r') as file:
                 cfg = yaml.load(file, Loader=yaml.FullLoader)
@@ -58,7 +60,7 @@ class ObjectTracking:
                 ema_alpha=cfg.ema_alpha,
             )
     def load_model(self):
-        model = YOLO('yolov8n.pt')
+        model = YOLO(YOLO_PATH)
         
         return model
 
@@ -89,7 +91,6 @@ class ObjectTracking:
             
         camera_bp = bp_lib.find('sensor.camera.rgb')
         
-
         camera_bp.set_attribute('image_size_x', f'{IM_WIDTH}')
         camera_bp.set_attribute('image_size_y', f'{IM_HEIGHT}')
         camera_bp.set_attribute('fov', '110')
@@ -116,7 +117,6 @@ class ObjectTracking:
         details = []
         
         while True:
-            print('inside while')
             start_time = perf_counter()
             frame = camera_data['image']
             results = self.model(frame)
@@ -131,17 +131,16 @@ class ObjectTracking:
                     conf = torch.tensor(conf)
                     details.append([x1.cpu().numpy(), y1.cpu().numpy(), x2.cpu().numpy(), y2.cpu().numpy(), conf.cpu().numpy(),id])
                     
+                    #else
                     #details.append([int(x), int(y), int(w), int(h), conf,id])
 
-            np_details = np.array(details)
-            print(np_details)
+            np_details = np.array(details) #only send nmupy array 
 
             if hasattr(self.tracker, 'tracker'):
                 if prev_frames in locals() and prev_frames is not None and curr_frames in locals() and curr_frames is not None:
                     self.tracker.tracker.camera_update(prev_frames, curr_frames)
 
             outputs = [None]
-            #for result in boxes:
             #for detail in np_details:
             outputs[0] = self.tracker.update(np_details, frame)
             for i, output in enumerate(outputs[0]):

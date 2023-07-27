@@ -114,9 +114,9 @@ class ObjectTracking:
         curr_frames, prev_frames = None, None
         
         #model = YOLO('yolov8n.pt')
-        details = []
         
         while True:
+            details = []
             start_time = perf_counter()
             frame = camera_data['image']
             results = self.model(frame)
@@ -124,15 +124,16 @@ class ObjectTracking:
             for box in results:  
                 for r in box.boxes.data.tolist():
                     x1, y1, x2, y2, conf, id = r
+                    '''
                     x1 = torch.tensor(x1)
                     y1 = torch.tensor(y1)
                     x2 = torch.tensor(x2)
                     y2 = torch.tensor(y2)
                     conf = torch.tensor(conf)
                     details.append([x1.cpu().numpy(), y1.cpu().numpy(), x2.cpu().numpy(), y2.cpu().numpy(), conf.cpu().numpy(),id])
-                    
+                    '''
                     #else
-                    #details.append([int(x), int(y), int(w), int(h), conf,id])
+                    details.append([int(x), int(y), int(w), int(h), conf,id])
 
             np_details = np.array(details) #only send nmupy array 
 
@@ -147,6 +148,7 @@ class ObjectTracking:
                 bbox = output[0:4]
                 tracked_id = output[4]
                 top_left = (int(bbox[-2] - 100), int(bbox[1]))
+                frame = cv2.UMat(frame)
                 cv2.putText(frame, f"ID: {tracked_id}", top_left, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
 
             end_time = perf_counter()

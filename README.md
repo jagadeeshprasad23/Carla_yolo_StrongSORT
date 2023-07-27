@@ -18,7 +18,10 @@ Install Tensorrt
 ```
 https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
 ```
-create a new virtual environment and 
+create a new virtual environment in conda 
+```
+conda create --name carla-sim python=3.8
+```
 install carla in conda virtual environment
 ```
 pip install carla

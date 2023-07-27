@@ -133,7 +133,7 @@ class ObjectTracking:
                     details.append([x1.cpu().numpy(), y1.cpu().numpy(), x2.cpu().numpy(), y2.cpu().numpy(), conf.cpu().numpy(),id])
                     '''
                     #else
-                    details.append([int(x), int(y), int(w), int(h), conf,id])
+                    details.append([int(x1), int(y1), int(x2), int(y2), conf,id])
 
             np_details = np.array(details) #only send nmupy array 
 

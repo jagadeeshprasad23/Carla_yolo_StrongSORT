@@ -2,37 +2,30 @@
 
 # Requirements 
 
-Install Carla simulator [documentation](https://carla.readthedocs.io/en/latest/start_quickstart/)
+Download and Install Carla simulator [Carla Installation link](https://carla.readthedocs.io/en/latest/start_quickstart/)
 
-Install Cuda
-```
-https://developer.nvidia.com/cuda-downloads
-```
-Install Cuda DNN
-```
-https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html
-```
-Install Tensorrt
-```
-https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
-```
+Download and Install Cuda [cuda download Link](https://developer.nvidia.com/cuda-downloads)
+Install Cuda DNN [cudeDNN download Link](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html)
+
 create a new virtual environment in conda 
 ```
-conda create --name carla-sim python=3.8
+conda create --name <env-name> python=3.8
+# example : conda create --name carla-sim python=3.8
+
+#activate the virtual environnment
+conda activate <env-name>   
+# example : conda activate carla-sim
+
 ```
 install carla in conda virtual environment
 ```
 pip install carla
 ```
-install Linear Assignment Problem
-```
-conda install -c conda-forge lap
-```
 Run CarlaE4.exe and Run any of the following in the command prompt 
 ```
-tracking/tracker.py
+StrongSORT/tracker.py
 ```
 Or Open Jupyter notebook/ Jupyter-lab and run the following notebook
 ```
-tracking/tracker.ipynb
+StrongSORT/tracker.ipynb
 ```

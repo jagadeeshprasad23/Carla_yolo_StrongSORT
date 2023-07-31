@@ -2,7 +2,7 @@
 
 # Requirements 
 
-Install Carla simulator (https://carla.readthedocs.io/en/latest/start_quickstart/)
+Install Carla simulator [documentation](https://carla.readthedocs.io/en/latest/start_quickstart/)
 
 Install Cuda
 ```

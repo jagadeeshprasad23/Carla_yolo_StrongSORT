@@ -2,10 +2,8 @@
 
 # Requirements 
 
-Install Carla simulator 
-```
-https://carla.readthedocs.io/en/latest/start_quickstart/
-```
+Install Carla simulator (https://carla.readthedocs.io/en/latest/start_quickstart/)
+
 Install Cuda
 ```
 https://developer.nvidia.com/cuda-downloads

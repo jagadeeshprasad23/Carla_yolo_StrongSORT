@@ -2,10 +2,9 @@
 
 # Requirements 
 
-Download and Install Carla simulator [Carla Installation link](https://carla.readthedocs.io/en/latest/start_quickstart/)
-
-Download and Install Cuda [cuda download Link](https://developer.nvidia.com/cuda-downloads)
-Install Cuda DNN [cudeDNN download Link](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html)
+### Download and Install Carla simulator [Carla Installation link](https://carla.readthedocs.io/en/latest/start_quickstart/)
+### Download and Install Cuda [cuda download Link](https://developer.nvidia.com/cuda-downloads)
+### Install Cuda DNN [cudeDNN download Link](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html)
 
 create a new virtual environment in conda 
 ```

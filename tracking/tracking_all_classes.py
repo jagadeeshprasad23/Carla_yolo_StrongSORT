@@ -6,21 +6,22 @@ from time import perf_counter
 from ultralytics import YOLO
 import yaml
 from pathlib import Path
-import supervision as sv
 from types import SimpleNamespace
 import carla
-import math
 import random
-import time
-from strongsort.strong_sort import StrongSORT        
+from strong_sort.strong_sort import StrongSORT       
 
 SAVE_VIDEO = True
 TRACKER = 'strongsort'
 IM_WIDTH = 256*4
 IM_HEIGHT = 256*3
 
+#For Pretrained Weights
+#YOLO_PATH = 'weights/best.pt'
+#CLASS_IDS = [0,1,2]
+
 YOLO_PATH = 'weights/yolov8n.pt'
-YOLO_PATH = 'weights/best.pt'
+CLASS_IDS = [1, 2,3, 5, 7]
 
 class ObjectTracking:
     def __init__(self):
@@ -29,8 +30,6 @@ class ObjectTracking:
         
         self.model = self.load_model()
         self.CLASS_NAMES_DICT = self.model.model.names
-        
-        self.box_annotator = sv.BoxAnnotator(sv.ColorPalette.default(), thickness=3, text_thickness=3, text_scale=1.5)
         
         # reid weights
         reid_weights = Path('weights/osnet_x0_25_msmt17.pt')
@@ -41,23 +40,31 @@ class ObjectTracking:
             self.video_writer = cv2.VideoWriter(self.video_save_path, fourcc, 20.0, (IM_WIDTH, IM_HEIGHT))
         
         if TRACKER == 'strongsort':
-            tracker_config = 'configs/strongsort.yaml' 
+            tracker_config = 'strong_sort/configs/strong_sort.yaml' 
             with open(tracker_config, 'r') as file:
-                cfg = yaml.load(file, Loader=yaml.FullLoader)
-            cfg = SimpleNamespace(**cfg)
+                self.cfg = yaml.load(file, Loader=yaml.FullLoader)
+            self.cfg = SimpleNamespace(**self.cfg)
+            
+            '''model_weights,
+                 device, 
+                 max_dist=0.2,
+                 max_iou_distance=0.7,
+                 max_age=70, 
+                 n_init=3,
+                 nn_budget=100,
+                 mc_lambda=0.995,
+                 ema_alpha=0.9'''
             
             self.tracker = StrongSORT(
                 reid_weights,
                 torch.device(self.device),
-                False,
-                max_dist=cfg.max_dist,
-                max_iou_dist=cfg.max_iou_dist,
-                max_age=cfg.max_age,
-                max_unmatched_preds=cfg.max_unmatched_preds,
-                n_init=cfg.n_init,
-                nn_budget=cfg.nn_budget,
-                mc_lambda=cfg.mc_lambda,
-                ema_alpha=cfg.ema_alpha,
+                self.cfg.MAX_DIST,
+                self.cfg.MAX_IOU_DISTANCE,
+                self.cfg.MAX_AGE,
+                self.cfg.N_INIT,
+                self.cfg.NN_BUDGET,
+                self.cfg.MC_LAMBDA,
+                self.cfg.EMA_ALPHA,
             )
     def load_model(self):
         model = YOLO(YOLO_PATH)
@@ -113,43 +120,48 @@ class ObjectTracking:
         
         curr_frames, prev_frames = None, None
         
-        #model = YOLO('yolov8n.pt')
-        
         while True:
-            details = []
             start_time = perf_counter()
             frame = camera_data['image']
+            org_img = camera_data['image']
             results = self.model(frame)
+            
+            bbox_xyxy = []
+            confidences = []
+            classes = []
+            
+            outputs = [None]
             
             for box in results:  
                 for r in box.boxes.data.tolist():
                     x1, y1, x2, y2, conf, id = r
-                    '''
-                    x1 = torch.tensor(x1)
-                    y1 = torch.tensor(y1)
-                    x2 = torch.tensor(x2)
-                    y2 = torch.tensor(y2)
-                    conf = torch.tensor(conf)
-                    details.append([x1.cpu().numpy(), y1.cpu().numpy(), x2.cpu().numpy(), y2.cpu().numpy(), conf.cpu().numpy(),id])
-                    '''
-                    #else
-                    details.append([int(x1), int(y1), int(x2), int(y2), conf,id])
-
-            np_details = np.array(details) #only send nmupy array 
-
+                    
+                    if int(id) in CLASS_IDS:
+                        bbox_xyxy.append([int(x1), int(y1), int(x2), int(y2)])
+                        confidences.append(conf)
+                        classes.append(int(id))
+                            
+                    else:
+                        continue
+            if self.cfg.ECC:  # camera motion compensation
+                self.tracker.tracker.camera_update(prev_frames, curr_frames)
+            '''         
             if hasattr(self.tracker, 'tracker'):
                 if prev_frames in locals() and prev_frames is not None and curr_frames in locals() and curr_frames is not None:
                     self.tracker.tracker.camera_update(prev_frames, curr_frames)
-
+                    '''
             outputs = [None]
+            #for result in boxes:
             #for detail in np_details:
-            outputs[0] = self.tracker.update(np_details, frame)
-            for i, output in enumerate(outputs[0]):
-                bbox = output[0:4]
-                tracked_id = output[4]
-                top_left = (int(bbox[-2] - 100), int(bbox[1]))
-                frame = cv2.UMat(frame)
-                cv2.putText(frame, f"ID: {tracked_id}", top_left, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
+            print(bbox_xyxy, confidences, classes)
+            if bbox_xyxy is not None and confidences is not None and classes is not None:
+                outputs[0] = self.tracker.update(bbox_xyxy, confidences, classes, org_img)
+            
+                for i, output in enumerate(outputs[0]):
+                    bbox = output[0:4]
+                    tracked_id = output[4]
+                    top_left = (int(bbox[-2] - 100), int(bbox[1]))
+                    cv2.putText(frame, f"ID: {tracked_id}", top_left, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
 
             end_time = perf_counter()
             fps = 1 / np.round(end_time - start_time, 2)
@@ -157,13 +169,15 @@ class ObjectTracking:
             # Convert the frame to a compatible format (e.g., cv::UMat) if needed
             frame = cv2.UMat(frame)
 
+            prev_frames = curr_frames
+            
             cv2.putText(frame, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
             cv2.imshow('Yolov8 StrongSORT', frame)
 
             if cv2.waitKey(1) == ord('q'):
                 break
-        if SAVE_VIDEO:
-            self.video_writer.release()
+            if SAVE_VIDEO:
+                self.video_writer.release()
 
         cv2.destroyAllWindows()
         camera.stop()

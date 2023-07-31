@@ -5,6 +5,10 @@ import time
 import numpy as np
 import cv2
 
+YOLO_PATH = 'weights/best_rf_n.pt'
+YOLO_PATH = 'weights/best_rf_s.pt'
+YOLO_PATH = 'weights/yolov8n.pt'
+
 #The local Host for carla simulator is 2000
 client = carla.Client('localhost', 2000)
 # world has methods to access all things in simulator(vehicles, buildings, etc and spawning)
@@ -84,7 +88,7 @@ from ultralytics import YOLO
 #use the best model for object detection
 
 #model = YOLO('yolov8n.pt')
-model = YOLO('weights/best.pt')
+model = YOLO(YOLO_PATH)
 
 while True:
     frame = camera_data['image']

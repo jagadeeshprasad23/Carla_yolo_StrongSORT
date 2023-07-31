@@ -5,8 +5,8 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import torch
 import sys
-from strong_sort.utils.parser import get_config
-from strong_sort.strong_sort import StrongSORT
+from .utils.parser import get_config
+from .strong_sort import StrongSORT
 
 class main:
     def __init__(self, arg):

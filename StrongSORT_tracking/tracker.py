@@ -12,7 +12,7 @@ import carla
 import math
 import random
 import time
-from StrongSORT_tracking.strong_sort import StrongSORT    
+from .strong_sort import StrongSORT    
 
 SAVE_VIDEO = True
 TRACKER = 'strongsort'

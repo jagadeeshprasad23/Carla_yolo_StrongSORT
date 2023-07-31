@@ -1,8 +1,7 @@
 # pip install -r requirements.txt
 
-# conda install -c conda-forge jupyterlab
 
-# base
+# --------------------
 numpy>=1.18.5
 opencv-python>=4.1.2
 Pillow>=7.1.2
@@ -10,9 +9,8 @@ PyYAML>=5.3.1
 #requests>=2.23.0
 torch>=1.7.0
 torchvision>=0.8.1
-# deep_sort 
 easydict
-# torchreid
+torchreid
 Cython
 h5py
 six

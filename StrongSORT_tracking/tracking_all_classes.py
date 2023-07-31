@@ -9,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import carla
 import random
-from strong_sort.strong_sort import StrongSORT       
+from .strong_sort import StrongSORT       
 
 SAVE_VIDEO = True
 TRACKER = 'strongsort'

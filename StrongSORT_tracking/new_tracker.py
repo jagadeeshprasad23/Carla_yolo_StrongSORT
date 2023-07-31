@@ -10,14 +10,16 @@ from types import SimpleNamespace
 import carla
 import random
 import os
-from strong_sort.strong_sort import StrongSORT 
-from strong_sort.utils.parser import get_config
+from .strong_sort import StrongSORT 
+from .utils.parser import get_config
 from PIL import Image, ImageDraw, ImageFont
 
 #For Pretrained Weights
-#YOLO_PATH = 'weights/best.pt'
-#CLASS_IDS = [0,1,2]
-#CLASS_NAMES = {0: 'bicycle', 1: 'motorcycle', 2: 'vehicle',}
+'''
+YOLO_PATH = 'weights/best.pt'
+CLASS_IDS = [0,1,2]
+CLASS_NAMES = {0: 'bicycle', 1: 'motorcycle', 2: 'vehicle',}
+'''
 
 YOLO_PATH = 'weights/yolov8n.pt'
 CLASS_IDS = [1, 2, 3, 5, 7]
@@ -126,12 +128,15 @@ class main:
             frame = camera_data['image']
             outputs,confs = main.perf_track(self,frame)
             frame = np.array(frame)
-            if len(outputs) > 0:
-                for j, (output, conf) in enumerate(zip(outputs, confs)):
-                        frame = main.annotation(self, frame, output, conf)
-            #save
+            
             end_time = perf_counter()
             fps = 1 / np.round(end_time - start_time, 2)
+            
+            if len(outputs) > 0:
+                for j, (output, conf) in enumerate(zip(outputs, confs)):
+                        frame = main.annotation(self, frame, output, conf, fps)
+            #save
+            
             
             frame = cv2.UMat(frame)
             
@@ -176,7 +181,7 @@ class main:
             print('Output values: ', outputs)
         return outputs,confs
     
-    def annotation(self, frame, output, conf):
+    def annotation(self, frame, output, conf, fps):
         x1, y1, x2, y2 = map(int,output[0:4])
         id = int(output[4])
         clss = int(output[5])
@@ -207,6 +212,11 @@ class main:
 
         # Draw the text on the frame
         cv2.putText(frame, text, txpos, font, 1, textcolor, 2)
+        
+        # Add the fps information to the frame
+        fps_text = f'FPS: {fps:.2f}'
+        fps_position = (10, 50)  # Coordinates to place the fps text (top-left corner)
+        cv2.putText(frame, fps_text, fps_position, font, 1, textcolor, 2)
 
         return frame
     

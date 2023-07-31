@@ -16,6 +16,9 @@ conda create --name <env-name> python=3.8
 conda activate <env-name>   
 # example: conda activate carla-sim
 
+# install requirements using the following command
+pip install -r requirements.txt
+
 ```
 install Carla in a conda virtual environment
 ```

@@ -6,7 +6,8 @@
 ### Download and Install Cuda [cuda download Link](https://developer.nvidia.com/cuda-downloads)
 ### Install Cuda DNN [cudeDNN download Link](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html)
 
-create a new virtual environment in conda 
+### Install Anaconda [download](https://www.anaconda.com/download)
+### create a new virtual environment in conda 
 ```
 conda create --name <env-name> python=3.8
 # example : conda create --name carla-sim python=3.8

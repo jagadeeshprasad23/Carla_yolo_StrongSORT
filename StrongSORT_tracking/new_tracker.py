@@ -12,7 +12,7 @@ import random
 import os
 from .strong_sort import StrongSORT 
 from .utils.parser import get_config
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 #For Pretrained Weights
 '''

@@ -1,32 +1,43 @@
-from typing import Any
 import torch
 import numpy as np
 import cv2
 from time import perf_counter
 from ultralytics import YOLO
-import yaml
-from pathlib import Path
-from types import SimpleNamespace
 import carla
 import random
 import os
 from strong_sort import StrongSORT 
 from utils.parser import get_config
-from PIL import Image
 
-#For Pretrained Weights
+#For Pretrained Weights change the values based on preference
+data1 = False 
+roboflow = True
+roboflow_large = False
 
-YOLO_PATH = 'weights/best.pt'
-CLASS_IDS = [0,1,2]
-CLASS_NAMES = {0: 'bicycle', 1: 'motorcycle', 2: 'vehicle',}
-'''
+if data1:
+    YOLO_PATH = 'weights/best.pt'
+    CLASS_IDS = [0, 1, 2]
+    CLASS_NAMES = {0: 'bicycle', 1: 'motorcycle', 2: 'vehicle'}
+    model_type = 'data1'
+    print('The Tracker is using detection model trained on data1')
+    
+if roboflow:
+    YOLO_PATH = 'weights/best_rf_n.pt'
+    CLASS_IDS = [0, 1, 4]
+    CLASS_NAMES = {0: 'bike', 1: 'motobike', 4: 'vehicle'}
+    model_type = 'robo_n'
+    print('The tracker is using detection model trained on roboflow data set "nano"')
 
-YOLO_PATH = 'weights/yolov8n.pt'
-CLASS_IDS = [1, 2, 3, 5, 7]
-CLASS_NAMES = {1: 'bicycle', 2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
-'''
-IM_WIDTH = 256*7
-IM_HEIGHT = 256*4
+if roboflow_large:
+    YOLO_PATH = 'weights/bestrf.pt'
+    CLASS_IDS = [0, 1, 4]
+    CLASS_NAMES = {0: 'bike', 1: 'motobike', 4: 'vehicle'}
+    model_type = 'robo_s'
+    print('The tracker is using detection model trained on roboflow data set "small"')
+
+
+IM_WIDTH = 256*5
+IM_HEIGHT = 256*3
 
 class main:
     def __init__(self):
@@ -107,20 +118,16 @@ class main:
 
         vehicle.set_autopilot(True)
         
-        fps = 10
+        fps = 5
         fmt = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-        writer = cv2.VideoWriter('output.mp4',fmt, fps, (IM_WIDTH, IM_HEIGHT))
+        writer = cv2.VideoWriter('output_'+ model_type+ '.mp4',fmt, fps, (IM_WIDTH, IM_HEIGHT))
         
         curr_frames, prev_frames = None, None
         
         while True:
             
             start_time = perf_counter()
-            
-            '''
-            if self.cfg.STRONGSORT.ECC:
-                self.strongsort.tracker.camera_update(prev_frames, curr_frames)
-            '''    
+               
             if hasattr(self.strongsort, 'tracker'):
                 if prev_frames in locals() and prev_frames is not None and curr_frames in locals() and curr_frames is not None:
                     self.strongsort.tracker.camera_update(prev_frames, curr_frames)
@@ -136,7 +143,6 @@ class main:
                 for j, (output, conf) in enumerate(zip(outputs, confs)):
                         frame = main.annotation(self, frame, output, conf, fps)
             #save
-            #frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert to BGR format
             frame = cv2.UMat(frame)
             
             prev_frames = curr_frames
@@ -189,7 +195,6 @@ class main:
         if clss in CLASS_NAMES:
             label = CLASS_NAMES[clss]  # Make the object name change to match the clss number
         
-
         # Convert the frame to a NumPy array (if it's not already)
         frame = frame if isinstance(frame, np.ndarray) else np.array(frame)
 
@@ -201,13 +206,9 @@ class main:
         
         # Specify font style by path
         font = cv2.FONT_HERSHEY_SIMPLEX
-
         text = f'{id} {label} {conf:.2f}'
 
         txpos = (x1, y1 - 10)  # Coordinates to start drawing text
-
-        # Draw the filled rectangle as background for the text
-        #cv2.rectangle(frame, txpos, (int(output[0]) + len(text) * 20, int(output[1])), rectcolor, -1)
 
         # Draw the text on the frame
         cv2.putText(frame, text, txpos, font, 1, textcolor, 2)

@@ -10,16 +10,24 @@ from strong_sort import StrongSORT
 from utils.parser import get_config
 
 #For Pretrained Weights change the values based on preference
+yolo_model = True
 data1 = False 
-roboflow = True
-roboflow_large = False
+roboflow = False
+roboflow_small = False
+
+if yolo_model:
+    YOLO_PATH = 'weights/yolov8n.pt'
+    CLASS_IDS = [1, 2, 3, 5, 7]
+    CLASS_NAMES = {1: 'bicycle', 2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
+    model_type = 'yolo'
+    print('The Tracker is using detection model trained on yolo')
 
 if data1:
-    YOLO_PATH = 'weights/best.pt'
+    YOLO_PATH = 'weights/best_data1.pt'
     CLASS_IDS = [0, 1, 2]
     CLASS_NAMES = {0: 'bicycle', 1: 'motorcycle', 2: 'vehicle'}
     model_type = 'data1'
-    print('The Tracker is using detection model trained on data1')
+    print('The Tracker is using detection model trained on data1 "small" ')
     
 if roboflow:
     YOLO_PATH = 'weights/best_rf_n.pt'
@@ -28,15 +36,15 @@ if roboflow:
     model_type = 'robo_n'
     print('The tracker is using detection model trained on roboflow data set "nano"')
 
-if roboflow_large:
+if roboflow_small:
     YOLO_PATH = 'weights/bestrf.pt'
     CLASS_IDS = [0, 1, 4]
     CLASS_NAMES = {0: 'bike', 1: 'motobike', 4: 'vehicle'}
     model_type = 'robo_s'
     print('The tracker is using detection model trained on roboflow data set "small"')
 
-
-IM_WIDTH = 256*5
+#1024 x 768
+IM_WIDTH = 256*4
 IM_HEIGHT = 256*3
 
 class main:
@@ -118,7 +126,7 @@ class main:
 
         vehicle.set_autopilot(True)
         
-        fps = 5
+        fps = 3
         fmt = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
         writer = cv2.VideoWriter('output_'+ model_type+ '.mp4',fmt, fps, (IM_WIDTH, IM_HEIGHT))
         

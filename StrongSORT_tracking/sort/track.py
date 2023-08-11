@@ -1,8 +1,6 @@
-# vim: expandtab:ts=4:sw=4
 import cv2
 import numpy as np
 from .kalman_filter import KalmanFilter
-
 
 class TrackState:
     """
@@ -13,11 +11,9 @@ class TrackState:
     tracks.
 
     """
-
     Tentative = 1
     Confirmed = 2
     Deleted = 3
-
 
 class Track:
     
@@ -140,7 +136,6 @@ class Track:
         else:
             return warp_matrix, None
 
-
     def get_matrix(self, matrix):
         eye = np.eye(3)
         dist = np.linalg.norm(eye - matrix)
@@ -164,7 +159,6 @@ class Track:
         w, h = x2_ - x1_, y2_ - y1_
         cx, cy = x1_ + w / 2, y1_ + h / 2
         self.mean[:4] = [cx, cy, w / h, h]
-
 
     def increment_age(self):
         self.age += 1

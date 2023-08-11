@@ -16,20 +16,9 @@ trained_s = False
 yolov8n = False
 yolov8s = False
 
-if yolov8n:
-    YOLO_PATH = 'weights/yolov8n.pt'
-    CLASS_IDS = [1, 2, 3, 5, 7]
-    CLASS_NAMES = {1: 'bicycle', 2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
-    model_type = 'yolov8n'
-    print('The Tracker is using detection model trained on yolov8n')
-    
-if yolov8s:
-    YOLO_PATH = 'weights/yolov8s.pt'
-    CLASS_IDS = [1, 2, 3, 5, 7]
-    CLASS_NAMES = {1: 'bicycle', 2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
-    model_type = 'yolov8s'
-    print('The Tracker is using detection model trained on yolov8s')
-    
+# Based on the configuration it will load the weights
+
+# Trained Models    
 if trained_n:
     YOLO_PATH = 'weights/best_n.pt'
     CLASS_IDS = [0, 1]
@@ -43,17 +32,33 @@ if trained_s:
     CLASS_NAMES = {0:'bike', 1: 'vehicle'}
     model_type = 'train_s'
     print('The tracker is using detection model trained on roboflow dataset "small"')
+    
+# yolo pretrained models
+if yolov8n:
+    YOLO_PATH = 'weights/yolov8n.pt'
+    CLASS_IDS = [1, 2, 3, 5, 7]
+    CLASS_NAMES = {1: 'bicycle', 2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
+    model_type = 'yolov8n'
+    print('The Tracker is using detection model trained on yolov8n')
+    
+if yolov8s:
+    YOLO_PATH = 'weights/yolov8s.pt'
+    CLASS_IDS = [1, 2, 3, 5, 7]
+    CLASS_NAMES = {1: 'bicycle', 2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
+    model_type = 'yolov8s'
+    print('The Tracker is using detection model trained on yolov8s')
 
-#1024 x 768
+
+#The image height and width should be mained in 256 multiplier format for yolo
 IM_WIDTH = 256*4
 IM_HEIGHT = 256*3
 
 class main:
     def __init__(self):
         
-        self.model = self.load_model()
+        self.model = self.load_model() #loads Yolo model
         self.save_vid = True
-        self.initialize_strongsort()
+        self.initialize_strongsort() 
         
     def initialize_strongsort(self):
         self.cfg = get_config()
@@ -73,7 +78,6 @@ class main:
         )
         
     def load_model(self):
-        # Change path accordingly
         model = YOLO(YOLO_PATH)
         
         return model
@@ -88,28 +92,34 @@ class main:
         bp_lib = world.get_blueprint_library()
         spawn_points = world.get_map().get_spawn_points()
 
+        #From vehicle blueprint getting the information of specific vehicle
         vehicle_bp = bp_lib.find('vehicle.lincoln.mkz_2020')
         vehicle = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
 
+        #Shifting the view to the spectator of the car(camera)
         spectator = world.get_spectator()
         transform = carla.Transform(vehicle.get_transform().transform(carla.Location(x=-4, z=2.5)), vehicle.get_transform().rotation)
         spectator.set_transform(transform)
 
-        spawn_num = 30
+        # change the spawn numbers accordingly
+        spawn_num = 40
         for i in range(spawn_num):
             vehicle_bp = random.choice(bp_lib.filter('vehicle'))
             npc = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
-            
+        
+        #Set vehicles to Auto pilot    
         for v in world.get_actors().filter('*vehicle*'):
             v.set_autopilot(True)
             
+        # Extract sensor data
         camera_bp = bp_lib.find('sensor.camera.rgb')
         
         camera_bp.set_attribute('image_size_x', f'{IM_WIDTH}')
         camera_bp.set_attribute('image_size_y', f'{IM_HEIGHT}')
-        camera_bp.set_attribute('fov', '110')
+        camera_bp.set_attribute('fov', '110') #field of view
 
-        camera_init_trans = carla.Transform(carla.Location(x = 1.5, z = 1.6 ))
+        #moved camera towards hood
+        camera_init_trans = carla.Transform(carla.Location(x = 1.5, z = 1.6 )) 
         camera = world.spawn_actor(camera_bp, camera_init_trans, attach_to=vehicle)
 
         def camera_callback(image, data_dict):

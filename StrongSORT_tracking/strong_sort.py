@@ -1,8 +1,7 @@
 import numpy as np
 import torch
-import sys
 import gdown
-from os.path import exists as file_exists, join
+from os.path import exists as file_exists
 
 from sort.nn_matching import NearestNeighborDistanceMetric
 from sort.detection import Detection
@@ -10,7 +9,6 @@ from sort.tracker import Tracker
 from sort.reid_model_factory import show_downloadeable_models, get_model_url, get_model_name
 
 from torchreid.reid.utils import FeatureExtractor
-from torchreid.reid.utils.tools import download_url
 
 __all__ = ['StrongSORT']
 

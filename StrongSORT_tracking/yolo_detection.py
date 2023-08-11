@@ -24,9 +24,6 @@ bp_lib = world.get_blueprint_library()
 #spawn points to spawn
 spawn_points = world.get_map().get_spawn_points()
 
-#List of vehicles in the blueprint
-#all_veh = [i for i in bp_lib if "vehicle" in i.tags]
-
 #From vehicle blueprint getting the information of specific vehicle
 vehicle_bp = bp_lib.find('vehicle.lincoln.mkz_2020')
 vehicle = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))

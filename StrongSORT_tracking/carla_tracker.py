@@ -5,7 +5,6 @@ from time import perf_counter
 from ultralytics import YOLO
 import carla
 import random
-import os
 from strong_sort import StrongSORT 
 from utils.parser import get_config
 

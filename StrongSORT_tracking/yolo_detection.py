@@ -5,9 +5,13 @@ import time
 import numpy as np
 import cv2
 
-YOLO_PATH = 'weights/best_rf_n.pt'
-YOLO_PATH = 'weights/best_rf_s.pt'
-YOLO_PATH = 'weights/yolov8n.pt'
+# Trained models
+YOLO_PATH = 'weights/best_n.pt'
+#YOLO_PATH = 'weights/best_s.pt'
+
+#yolo Pretrained models
+#YOLO_PATH = 'weights/yolov8n.pt'
+#YOLO_PATH = 'weights/yolov8s.pt'
 
 #The local Host for carla simulator is 2000
 client = carla.Client('localhost', 2000)

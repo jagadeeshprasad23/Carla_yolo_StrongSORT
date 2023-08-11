@@ -7,7 +7,7 @@ from os.path import exists as file_exists, join
 from sort.nn_matching import NearestNeighborDistanceMetric
 from sort.detection import Detection
 from sort.tracker import Tracker
-from deep.reid_model_factory import show_downloadeable_models, get_model_url, get_model_name
+from sort.reid_model_factory import show_downloadeable_models, get_model_url, get_model_name
 
 from torchreid.reid.utils import FeatureExtractor
 from torchreid.reid.utils.tools import download_url
@@ -124,19 +124,6 @@ class StrongSORT(object):
             bbox_tlwh.append([t, l, w, h])
         return bbox_tlwh
 
-    '''
-    def _get_features(self, bbox_xywh, ori_img):
-        im_crops = []
-        for box in bbox_xywh:
-            x1, y1, x2, y2 = self._xywh_to_xyxy(box)
-            im = ori_img[y1:y2, x1:x2]
-            im_crops.append(im)
-        if im_crops:
-            features = self.extractor(im_crops)
-        else:
-            features = np.array([])
-        return features
-    '''
     def _get_features(self, bbox_xyxy, ori_img):
         im_crops = []
         for box in bbox_xyxy:

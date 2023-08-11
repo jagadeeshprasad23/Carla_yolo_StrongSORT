@@ -6,3 +6,7 @@ output.mp4
 output_data1.mp4
 output_robo_s.mp4
 output_robo.mp4
+output_yolo.mp4
+output_yolov8s.mp4
+output_yolov8x.mp4
+weights

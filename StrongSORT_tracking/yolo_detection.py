@@ -91,12 +91,20 @@ from ultralytics import YOLO
 #model = YOLO('yolov8n.pt')
 model = YOLO(YOLO_PATH)
 
+save_vid = True
+fps = 10
+fmt = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+writer = cv2.VideoWriter('detection.mp4',fmt, fps,(IM_WIDTH, IM_HEIGHT))
+
 while True:
     frame = camera_data['image']
     results = model(frame ,show = True) 
 
     # Display the frame
     cv2.imshow("YOLOv8", frame)
+    
+    if save_vid:
+            writer.write(frame)
     
     if cv2.waitKey(1) == ord('q'):
         break

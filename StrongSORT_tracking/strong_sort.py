@@ -30,7 +30,7 @@ class StrongSORT(object):
         elif file_exists(model_weights):
             pass
         elif model_url is None:
-            print('No URL associated to the chosen DeepSort weights. Choose between:')
+            print('No URL associated to the chosen strongSORT weights. Choose between:')
             show_downloadeable_models()
             exit()
 
@@ -55,13 +55,9 @@ class StrongSORT(object):
         detections = [Detection(bbox_tlwh[i], conf, features[i]) for i, conf in enumerate(
             confidences)]
 
-        # run on non-maximum supression
-        boxes = np.array([d.tlwh for d in detections])
-        scores = np.array([d.confidence for d in detections])
-
         # update tracker
         self.tracker.predict()
-        self.tracker.update(detections, classes, confidences)
+        self.tracker.update(detections, classes, confidences) #
 
         # output bbox identities
         outputs = []
@@ -91,6 +87,7 @@ class StrongSORT(object):
         return bbox_tlwh
 
     def _xywh_to_xyxy(self, bbox_xywh):
+        #Change the bounding box format from xywh to xyxy
         x, y, w, h = bbox_xywh
         x1 = max(int(x - w / 2), 0)
         x2 = min(int(x + w / 2), self.width - 1)
@@ -99,7 +96,7 @@ class StrongSORT(object):
         return x1, y1, x2, y2
 
     def _tlwh_to_xyxy(self, bbox_tlwh):
-        
+        #Change the bounding box format from top left width height  to xyxy
         x, y, w, h = bbox_tlwh
         x1 = max(int(x), 0)
         x2 = min(int(x+w), self.width - 1)

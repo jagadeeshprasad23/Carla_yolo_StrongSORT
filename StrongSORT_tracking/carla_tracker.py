@@ -6,7 +6,7 @@ from ultralytics import YOLO
 import carla
 import random
 from strong_sort import StrongSORT 
-from utils.parser import get_config
+from sort.parser import get_config
 
 # For Custom models
 trained_n = True 
@@ -20,7 +20,7 @@ yolov8s = False
 
 # Trained Models    
 if trained_n:
-    YOLO_PATH = 'weights/best_n.pt'
+    YOLO_PATH = 'weights/best.pt'
     CLASS_IDS = [0, 1]
     CLASS_NAMES = {0:'bike', 1: 'vehicle'}
     model_type = 'train_n'
@@ -48,7 +48,6 @@ if yolov8s:
     model_type = 'yolov8s'
     print('The Tracker is using detection model trained on yolov8s')
 
-
 #The image height and width should be mained in 256 multiplier format for yolo
 IM_WIDTH = 256*4
 IM_HEIGHT = 256*3
@@ -61,26 +60,35 @@ class main:
         self.initialize_strongsort() 
         
     def initialize_strongsort(self):
-        self.cfg = get_config()
-        self.cfg.merge_from_file('configs/strong_sort.yaml')
-        self.strong_sort_weights = 'weights/osnet_x0_25_market1501.pth'
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.strongsort = StrongSORT(
-            self.strong_sort_weights,
-            self.device,
-            max_dist=self.cfg.STRONGSORT.MAX_DIST,
-            max_iou_distance=self.cfg.STRONGSORT.MAX_IOU_DISTANCE,
-            max_age=self.cfg.STRONGSORT.MAX_AGE,
-            n_init=self.cfg.STRONGSORT.N_INIT,
-            nn_budget=self.cfg.STRONGSORT.NN_BUDGET,
-            mc_lambda=self.cfg.STRONGSORT.MC_LAMBDA,
-            ema_alpha=self.cfg.STRONGSORT.EMA_ALPHA,
-        )
+        #Initialises the weights and configues of the strongSORT
+        try:
+            self.cfg = get_config()
+            self.cfg.merge_from_file('configs/strong_sort.yaml')
+            self.strong_sort_weights = 'weights/osnet_x0_25_market1501.pth'
+            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            self.strongsort = StrongSORT(
+                self.strong_sort_weights,
+                self.device,
+                max_dist=self.cfg.STRONGSORT.MAX_DIST,
+                max_iou_distance=self.cfg.STRONGSORT.MAX_IOU_DISTANCE,
+                max_age=self.cfg.STRONGSORT.MAX_AGE,
+                n_init=self.cfg.STRONGSORT.N_INIT,
+                nn_budget=self.cfg.STRONGSORT.NN_BUDGET,
+                mc_lambda=self.cfg.STRONGSORT.MC_LAMBDA,
+                ema_alpha=self.cfg.STRONGSORT.EMA_ALPHA,
+            )
+        except Exception as e:
+            print("Error initializing StrongSORT:", e)
+            raise
         
     def load_model(self):
-        model = YOLO(YOLO_PATH)
-        
-        return model
+        #Yolo Model
+        try:
+            model = YOLO(YOLO_PATH)
+            return model
+        except Exception as e:
+            print("Error loading YOLO model:", e)
+            raise
     
     def __call__(self):
         # The local Host for carla simulator is 2000
@@ -142,36 +150,41 @@ class main:
         curr_frames, prev_frames = None, None
         
         while True:
-            
-            start_time = perf_counter()
-               
-            if hasattr(self.strongsort, 'tracker'):
-                if prev_frames in locals() and prev_frames is not None and curr_frames in locals() and curr_frames is not None:
-                    self.strongsort.tracker.camera_update(prev_frames, curr_frames)
-            
-            frame = camera_data['image']
-            outputs,confs = main.perf_track(self,frame)
-            frame = np.array(frame)
-            
-            end_time = perf_counter()
-            fps = 1 / np.round(end_time - start_time, 2)
-            
-            if len(outputs) > 0:
-                for j, (output, conf) in enumerate(zip(outputs, confs)):
-                        frame = main.annotation(self, frame, output, conf, fps)
-            #save
-            frame = cv2.UMat(frame)
-            
-            prev_frames = curr_frames
-            
-            cv2.imshow('Yolov8 StrongSORT', frame)
-            
-            if self.save_vid:
-                writer.write(frame)
+            try:
+                start_time = perf_counter()
                 
-            if cv2.waitKey(1) == ord('q'):
-                break
-            
+                if hasattr(self.strongsort, 'tracker'):
+                    if prev_frames in locals() and prev_frames is not None and curr_frames in locals() and curr_frames is not None:
+                        self.strongsort.tracker.camera_update(prev_frames, curr_frames)
+                
+                frame = camera_data['image']
+                outputs,confs = main.perf_track(self,frame)
+                frame = np.array(frame)
+                
+                end_time = perf_counter()
+                fps = 1 / np.round(end_time - start_time, 2)
+                
+                if len(outputs) > 0:
+                    for j, (output, conf) in enumerate(zip(outputs, confs)):
+                            frame = main.annotation(self, frame, output, conf, fps)
+                #save
+                frame = cv2.UMat(frame)
+                
+                prev_frames = curr_frames
+                
+                cv2.imshow('Yolov8 StrongSORT', frame)
+                
+                if self.save_vid:
+                    writer.write(frame)
+                    
+                if cv2.waitKey(1) == ord('q'):
+                    break
+            except KeyboardInterrupt:
+                pass
+            except Exception as e:
+                print("An error occurred:", e)
+            finally:
+                pass
         writer.release()  # Release the VideoWriter  
         cv2.destroyAllWindows()
         camera.stop()

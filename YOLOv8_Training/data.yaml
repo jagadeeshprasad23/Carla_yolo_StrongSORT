@@ -5,4 +5,4 @@ val: train_images/valid/
 nc: 2
 names: ['bike', 'vehicle']
 
-#0 = bike+motorbike = vehicle.
+#0 = bike + motorbike, 1 = vehicle.

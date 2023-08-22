@@ -104,7 +104,7 @@ while True:
     cv2.imshow("YOLOv8", frame)
     
     if save_vid:
-            writer.write(frame)
+        writer.write(frame)
     
     if cv2.waitKey(1) == ord('q'):
         break

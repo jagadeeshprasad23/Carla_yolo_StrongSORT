@@ -9,8 +9,8 @@ from strong_sort import StrongSORT
 from sort.parser import get_config
 
 # For Custom models
-trained_n = True 
-trained_s = False
+trained_n = False 
+trained_s = True
 
 #For Pretrained yolo weights
 yolov8n = False
@@ -20,7 +20,7 @@ yolov8s = False
 
 # Trained Models    
 if trained_n:
-    YOLO_PATH = 'weights/best.pt'
+    YOLO_PATH = 'weights/best_n.pt'
     CLASS_IDS = [0, 1]
     CLASS_NAMES = {0:'bike', 1: 'vehicle'}
     model_type = 'train_n'
